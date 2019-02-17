@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Category, Item, User
+from database_configuration import sql_db_interface
 
 
 # seed data
@@ -33,21 +34,21 @@ for x in range(len(categories)):
 
 
 
-# create core interface to database - replace this with your own: 
-engine = create_engine('postgresql://postgres:tyrion1234@localhost:5433/postgres', echo=True)
+# create core interface to database 
+engine = create_engine(sql_db_interface, echo=True)
 # class to produce instances of session
 Session = sessionmaker(bind=engine)
 
 current_session = Session()
 
 
-print(current_session.query(Item).all()[0])
 
-#current_session.add_all(categories_alchemy)
-#current_session.add_all(items_alchemy)
-#current_session.add_all(users_alchemy)
-#current_session.commit()
-#current_session.close()
+
+current_session.add_all(categories_alchemy)
+current_session.add_all(items_alchemy)
+current_session.add_all(users_alchemy)
+current_session.commit()
+current_session.close()
 
 
 

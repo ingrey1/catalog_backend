@@ -2,10 +2,11 @@ from sqlalchemy import create_engine, Table, Column, Integer, String, Boolean, S
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import datetime
+from database_configuration import sql_db_interface
 
 
-# create core interface to database - replace this with your own: 
-engine = create_engine('postgresql://postgres:tyrion1234@localhost:5433/postgres', echo=True)
+# create core interface to db - edit the value of sql_db_interface in the database_configuration file
+engine = create_engine(sql_db_interface, echo=True)
 
 
 # keeps track of all the databases classes / tables
@@ -18,7 +19,7 @@ Base = declarative_base()
 item_category_table = Table('item_category_association', Base.metadata,
     Column('categories_id', Integer, ForeignKey('categories.id') ),
     Column('items_id', Integer, ForeignKey('items.id')),
-    Column('updated_on', DateTime, onupdate=datetime.datetime.now))
+    Column('updated_on', DateTime, onupdate=datetime.datetime.now, default=datetime.datetime.now))
 
 
 class Category(Base):
@@ -63,12 +64,9 @@ class User(Base):
 
 
 # add schema to database 
-
-
-
-
 if __name__ == 'main':
     Base.metadata.create_all(engine)
+
 
 
 

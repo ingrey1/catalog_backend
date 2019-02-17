@@ -1,4 +1,7 @@
 from flask import Flask
+import sys
+sys.path.append('./database/database_methods.py')
+from database_methods import add_item
 
 app = Flask(__name__)
 
