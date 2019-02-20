@@ -24,16 +24,6 @@ jobs = ['pilot', 'engineer', 'animal trainer']
 users = ['ted pullman', 'james george', 'simba canote']
 
 
-for x in range(len(categories)):
-
-    categories_alchemy.append(Category(name=categories[x]))
-    users_alchemy.append(User(full_name=users[x]))
-    items_alchemy.append(Item(name=pets[x]))
-    items_alchemy.append(Item(name=reptiles[x]))
-    items_alchemy.append(Item(name=jobs[x]))
-
-
-
 # create core interface to database 
 engine = create_engine(sql_db_interface, echo=True)
 # class to produce instances of session
@@ -43,10 +33,29 @@ current_session = Session()
 
 
 
+default_category = current_session.query(Category).filter(Category.name == "None").first()
+
+
+
+for x in range(len(categories)):
+
+    categories_alchemy.append(Category(name=categories[x]))
+    users_alchemy.append(User(full_name=users[x]))
+    item1 = Item(name=pets[x])
+    item1.categories.append(default_category)
+    item2 = Item(name=reptiles[x])
+    item2.categories.append(default_category)
+    item3 = Item(name=jobs[x]) 
+    item3.categories.append(default_category)  
+    items_alchemy.append(item1)
+    items_alchemy.append(item2)
+    items_alchemy.append(item3)
 
 current_session.add_all(categories_alchemy)
 current_session.add_all(items_alchemy)
 current_session.add_all(users_alchemy)
+
+
 current_session.commit()
 current_session.close()
 

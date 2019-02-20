@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
-from database_setup import Category, Item, User
+from database_setup import Category, Item, User, ItemCategoryAssociation
 from database_configuration import sql_db_interface
 
 
@@ -18,6 +18,8 @@ def add_item(name, description):
             engine = create_engine(sql_db_interface, echo=True)
             Session = sessionmaker(bind=engine)
             current_session = Session()
+            default_category = current_session.query(Category).filter(Category.name == category_name).first()
+            new_item.categories.append(default_category)
             current_session.add(new_item)
             current_session.commit()
             current_session.close()
@@ -96,35 +98,99 @@ def connection_item_category(item_name, category_name, connection_status):
             # get reference to item and category
             item = current_session.query(Item).filter(Item.name == item_name).first()
             category = current_session.query(Category).filter(Category.name == category_name).first()
+            default_category = current_session.query(Category).filter(Category.name == "None").first()
             # item and category exists in DB 
             if item != None and category != None:
                 if connection_status == "connect":
+                    # delete 'None' category, if it exists
+                    for x in range(len(item.categories)):
+                        if item.categories[x].name == "None":
+                            item.categories.pop(x)
                     # add category to item / item to category
                     item.categories.append(category)
                     print("***item and category connected***")
-                else:
+                else: # removing the category
                     for x in range(len(item.categories)):
                         if item.categories[x].name == category_name:
                             # remove item from category, remove category from item
                             item.categories.pop(x)
-                            print("***item and category disconnected***")
+                    # add "None as a category" if there are no categories left
+                    if len(item.categories) == 0:
+                        item.categories.append(default_category)
+                    print("***item and category disconnected***")
                 # commit changes to db
                 current_session.commit()
+                current_session.close()
                 return True
                 
-            else:
-                print("item and category (dis)connection failure")
-                return False
-
+            
+            print("item and category (dis)connection failure")
             current_session.close()
+            return False
+
+            
 
         except (DBAPIError, SQLAlchemyError) as e:
             print("item category connection failure")
+            current_session.close()
             return False
 
 
 
     print("item category connection failed")
     return False
+
+
+def get_item(item_name):
+    """get item from Items by name"""
+
+    valid_item_name = isinstance(item_name, str) and len(item_name) > 0
+
+    if valid_item_name:
+        try:
+            engine = create_engine(sql_db_interface, echo=True)
+            Session = sessionmaker(bind=engine)
+            current_session = Session()
+            # get reference to item 
+            item = current_session.query(Item).filter(Item.name == item_name).first()
+            if item != None:
+                print("***item in DB***")
+                current_session.close()
+                return item
+            
+            print("***item not in DB***")
+            current_session.close()
+            return None 
+        except (DBAPIError, SQLAlchemyError) as e:
+            print("***couldn't retrieve Item***")
+            current_session.close()
+            return None
+    print("invalid item_name")
+    return None
+
+def get_all_items(order_by, limit=1000):
+    """returns a list of Item objects, ordered by order_by"""
+
+    valid_order_by = order_by == "updated_on" or order_by == "name"
+    valid_limit = limit > 0 and limit < 10000
+
+    if valid_order_by and valid_limit:
+        try:
+            engine = create_engine(sql_db_interface, echo=True)
+            Session = sessionmaker(bind=engine)
+            current_session = Session()
+            if order_by == "name": 
+                items = current_session.query(Item).order_by(getattr(Item, order_by)).limit(limit).all()
+            elif order_by == "updated_on":
+                items = current_session.query(Item).join(ItemCategoryAssociation).order_by(ItemCategoryAssociation.updated_on.desc()).all()
+                print(items) 
+            current_session.close()
+            return items            
+        except (DBAPIError, SQLAlchemyError) as e:
+                current_session.close()
+                print("error")
+                return None
+    print("Invalid limit or order_by")        
+    return None
 
 
