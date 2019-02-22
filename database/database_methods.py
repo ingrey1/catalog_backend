@@ -5,6 +5,10 @@ from database_setup import Category, Item, User, ItemCategoryAssociation
 from database_configuration import sql_db_interface
 
 
+
+   
+
+
 def add_item(name, description):
     """add new item to Items table in database"""
 
@@ -168,6 +172,35 @@ def get_item(item_name):
     print("invalid item_name")
     return None
 
+
+def get_item_categories(item_name):
+    """Return list of Category instances that have item_name as an Item"""
+    valid_item_name = isinstance(item_name, str) and len(item_name) > 0 
+
+    if valid_item_name:
+        try:
+            engine = create_engine(sql_db_interface, echo=True)
+            Session = sessionmaker(bind=engine)
+            current_session = Session()
+            # get reference to item 
+            item = current_session.query(Item).filter(Item.name == item_name).first()
+            if item != None:
+                print("***item in DB***")
+                categories = item.categories
+                current_session.close()
+                return categories
+            
+            print("***item not in DB***")
+            current_session.close()
+            return None 
+
+        except (DBAPIError, SQLAlchemyError) as e:
+            print("***couldn't retrieve categories***")
+            current_session.close()
+    print("invalid item name")
+    return None        
+
+
 def get_all_items(order_by, limit=1000):
     """returns a list of Item objects, ordered by order_by"""
 
@@ -192,5 +225,23 @@ def get_all_items(order_by, limit=1000):
                 return None
     print("Invalid limit or order_by")        
     return None
+
+def serialize_item_info(item_name):
+    """Return dictinary of item info ready to be jsonified and sent clientside"""
+
+    item = get_item(item_name)
+    item_categories = get_item_categories(item_name)
+
+    if item != None and item_categories != None:
+        return {
+
+            "name": item.name,
+            "description": item.description,
+            "categories": [category.name for category in item_categories]
+
+        }
+    else:
+        return None 
+
 
 
