@@ -13,9 +13,9 @@ def valid_item_data(item_data):
     """Returns True if all item_data is valid, False otherwise"""
 
     valid_item_name = isinstance(item_data['name'], str) and len(item_data['name']) > 0
-    valid_item_description = None or isinstance(item_data['description'], str)
 
-    return valid_item_name and valid_item_description
+    return valid_item_name
+
 
 def valid_user_data(user_data):
 

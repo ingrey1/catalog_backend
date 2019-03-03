@@ -40,7 +40,7 @@ default_category = current_session.query(Category).filter(Category.name == "None
 for x in range(len(categories)):
 
     categories_alchemy.append(Category(name=categories[x]))
-    users_alchemy.append(User(full_name=users[x]))
+    users_alchemy.append(User(name=users[x]))
     item1 = Item(name=pets[x])
     item1.categories.append(default_category)
     item2 = Item(name=reptiles[x])

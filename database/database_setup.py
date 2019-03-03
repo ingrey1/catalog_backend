@@ -63,13 +63,13 @@ class User(Base):
     __tablename__ = 'users'
     # table column definitions
     id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-    full_name = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=False)
     logged_in = Column(Boolean, nullable=False, default=False)
     latest_session_exp = Column(DateTime)
      
 
     def __repr__(self):
-        return "<Item(id=%s, full_name=%s, logged_in=%s)>" % (self.id, self.full_name, self.logged_in)
+        return "<User(id=%s, name=%s, logged_in=%s)>" % (self.id, self.name, self.logged_in)
 
 
 

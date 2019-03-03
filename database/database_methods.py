@@ -7,9 +7,14 @@ from data_validation import valid_category_data, valid_item_data
 
 
 
-   
-
-
+def serialize_record(instance):
+    """returns dictionary of instance info"""
+    if isinstance(instance, Item):
+        return {'name': instance.name, 'description': instance.description, 'categories': [category.name for category in instance.categories]}   
+    elif isinstance(instance, Category):
+         return {'name': instance.name, 'items': [item.name for item in instance.items]}      
+    else:
+        return {'name': instance.name}       
 def add_item(data, db_session):
     """add new item to Items table in database"""
 
@@ -153,58 +158,8 @@ def connection_item_category(item_name, category_name, connection_status):
 
 
 
-def get_item_categories(item_name):
-    """Return list of Category instances that have item_name as an Item"""
-    valid_item_name = isinstance(item_name, str) and len(item_name) > 0 
+      
 
-    if valid_item_name:
-        try:
-            engine = create_engine(sql_db_interface, echo=True)
-            Session = sessionmaker(bind=engine)
-            current_session = Session()
-            # get reference to item 
-            item = current_session.query(Item).filter(Item.name == item_name).first()
-            if item != None:
-                print("***item in DB***")
-                categories = item.categories
-                current_session.close()
-                return categories
-            
-            print("***item not in DB***")
-            current_session.close()
-            return None 
-
-        except (DBAPIError, SQLAlchemyError) as e:
-            print("***couldn't retrieve categories***")
-            current_session.close()
-    print("invalid item name")
-    return None        
-
-
-def get_all_items(order_by, limit=1000):
-    """returns a list of Item objects, ordered by order_by"""
-
-    valid_order_by = order_by == "updated_on" or order_by == "name"
-    valid_limit = limit > 0 and limit < 10000
-
-    if valid_order_by and valid_limit:
-        try:
-            engine = create_engine(sql_db_interface, echo=True)
-            Session = sessionmaker(bind=engine)
-            current_session = Session()
-            if order_by == "name": 
-                items = current_session.query(Item).order_by(getattr(Item, order_by)).limit(limit).all()
-            elif order_by == "updated_on":
-                items = current_session.query(Item).join(ItemCategoryAssociation).order_by(ItemCategoryAssociation.updated_on.desc()).all()
-                print(items) 
-            current_session.close()
-            return items            
-        except (DBAPIError, SQLAlchemyError) as e:
-                current_session.close()
-                print("error")
-                return None
-    print("Invalid limit or order_by")        
-    return None
 
 
 
@@ -340,14 +295,28 @@ def retrieve_category(category_data, db_session):
     if valid_category_data(category_data):
         category = db_session.query(Category).filter(Category.name == category_data['name']).first()
         if category:
-            category_info = {'name': category.name, 'items': [item.name for item in category.items]}
-            return category_info
+            return serialize_record(category)
         else:
             print("***%s category record not in Category table***" % (category_data['name']) )
             return None
     else:
         print("***Basic category data validation failed***")
         return None
+
+def retrieve_item(item_data, db_session):
+    """returns dictionary of item record info from DB"""
+    if valid_item_data(item_data):
+        item = db_session.query(Item).filter(Item.name == item_data['name']).first()
+        if item:
+            
+            return serialize_record(item)
+        else:
+            print("***%s item record not in Item table***" % (item_data['name']) )
+            return None
+    else:
+        print("***Basic item data validation failed***")
+        return None
+
 
 
 def retrieve(data, data_f, db_connection_info):
@@ -374,3 +343,41 @@ def retrieve(data, data_f, db_connection_info):
             print("***%s failed to be retrieved from the %s table***" % (data['name'], data['table_type']))
             current_session.close()
             return None
+
+def retrieve_all(table_type, db_connection_info, order_by, limit):
+    """returns a list of dictionaries with data info, ordered dby order_by"""
+    classes = {'User': User, 'Item': Item, 'Category': Category}
+
+    try:
+            # create core interface to database 
+            engine = create_engine(db_connection_info, echo=True)
+            Session = sessionmaker(bind=engine)
+            current_session = Session()
+            if order_by != 'updated':
+                results = current_session.query(classes[table_type]).order_by(getattr(classes[table_type], order_by).asc()).limit(limit).all()
+            else:
+                results = current_session.query(Item).join(ItemCategoryAssociation).order_by(ItemCategoryAssociation.updated_on.desc()).limit(limit).all() 
+
+            if results != None:
+                serialized_results =  [serialize_record(result) for result in results]
+            else:
+                serialized_results = results
+                print("***Failed to retrieve all records from %s table***" % (table_type))
+            print("***%s table data retrieved***" % (table_type))
+            current_session.close()    
+            return serialized_results
+
+    except (DBAPIError, SQLAlchemyError) as e:
+
+            print("***%s failed retrieve records from the %s table***" % (data['table_type']))
+            current_session.close()
+            return None
+
+
+def retrieve_everything(db_connection_info, limit):
+        """returns a dictionary of all records in all tables in DB, up to limit"""
+
+        users = retrieve_all('User', db_connection_info, 'name', limit)
+        categories = retrieve_all('Category', db_connection_info, 'name', limit)
+        items = retrieve_all('Item', db_connection_info, 'name', limit)
+        return {'items': items, 'categories': categories, 'users': users} 
