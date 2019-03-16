@@ -78,7 +78,7 @@ class User(Base):
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
     default_category = Category(name="None")
-    engine = create_engine(sql_db_interface, echo=True)
+    engine = create_engine(sql_db_interface, echo=False)
     Session = sessionmaker(bind=engine)
     current_session = Session()
     current_session.add(default_category)

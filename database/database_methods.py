@@ -55,6 +55,8 @@ def add_item(data, db_session):
 
 
 
+
+
 def delete_item(item_data, db_session):
    """delete item from Items table in database"""
 
@@ -107,7 +109,7 @@ def connection_item_category(item_name, category_name, connection_status):
     if valid_item_name and valid_category_name and valid_connection_status:
 
         try:
-            engine = create_engine(sql_db_interface, echo=True)
+            engine = create_engine(sql_db_interface, echo=False)
             Session = sessionmaker(bind=engine)
             current_session = Session()
             # get reference to item and category
@@ -129,6 +131,7 @@ def connection_item_category(item_name, category_name, connection_status):
                         if item.categories[x].name == category_name:
                             # remove item from category, remove category from item
                             item.categories.pop(x)
+                            break
                     # add "None as a category" if there are no categories left
                     if len(item.categories) == 0:
                         item.categories.append(default_category)
@@ -221,7 +224,7 @@ def add(data, data_f, db_connection_info):
     """uses db_connection_info to connect and add object to db."""
     try:
             # create core interface to database 
-            engine = create_engine(db_connection_info, echo=True)
+            engine = create_engine(db_connection_info, echo=False)
             Session = sessionmaker(bind=engine)
             current_session = Session()
             # add record to database
@@ -246,7 +249,7 @@ def delete(data, data_f, db_connection_info):
     
     try:
             # create core interface to database 
-            engine = create_engine(db_connection_info, echo=True)
+            engine = create_engine(db_connection_info, echo=False)
             Session = sessionmaker(bind=engine)
             current_session = Session()
             # add record to database
@@ -269,7 +272,7 @@ def update(data, data_f, db_connection_info):
     """uses db_connection_info to connect and add object to db."""
     try:
             # create core interface to database 
-            engine = create_engine(db_connection_info, echo=True)
+            engine = create_engine(db_connection_info, echo=False)
             Session = sessionmaker(bind=engine)
             current_session = Session()
             # add record to database
@@ -325,7 +328,7 @@ def retrieve(data, data_f, db_connection_info):
 
     try:
             # create core interface to database 
-            engine = create_engine(db_connection_info, echo=True)
+            engine = create_engine(db_connection_info, echo=False)
             Session = sessionmaker(bind=engine)
             current_session = Session()
             # add record to database
@@ -350,7 +353,7 @@ def retrieve_all(table_type, db_connection_info, order_by, limit):
 
     try:
             # create core interface to database 
-            engine = create_engine(db_connection_info, echo=True)
+            engine = create_engine(db_connection_info, echo=False)
             Session = sessionmaker(bind=engine)
             current_session = Session()
             if order_by != 'updated':

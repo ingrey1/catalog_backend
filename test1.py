@@ -11,7 +11,7 @@ from database_configuration import sql_db_interface
 #add({'name': 'books', 'table_type': 'Category'}, add_category, sql_db_interface)
 #connection_item_category('book1', 'books', 'connect')
 
-#delete({'name': 'book1', 'description': 'the best book', 'table_type': 'Items'}, delete_item, sql_db_interface)
+#delete({'name': 'cat',  'table_type': 'Items'}, delete_item, sql_db_interface)
 
 #print(str(retrieve({'name':'book1', 'description': None, 'table_type': 'Items'}, retrieve_item, sql_db_interface)))
 
