@@ -1,26 +1,10 @@
 from authorization import get_token_info, valid_user
-from database_methods import (
-    retrieve_everything,
-    retrieve_all,
-    retrieve,
-    retrieve_item,
-    retrieve_category,
-    add,
-    delete,
-    delete_item,
-    add_item,
-    connection_item_category,
-    update,
-    update_item,
-    add_category,
-    delete_category)
+from database import *
+from database.database_methods import *
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 import json
-import sys
-sys.path.append('./database')
-from database_configuration import sql_db_interface
-
 
 app = Flask(__name__)
 CORS(app)

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Category, Item, User
-from database_configuration import sql_db_interface
+from database.database_setup import Category, Item, User
+from database.database_configuration import sql_db_interface
 
 
 # seed data
@@ -24,7 +24,7 @@ jobs = ['pilot', 'engineer', 'animal trainer']
 users = ['ted pullman', 'james george', 'simba canote']
 
 
-# create core interface to database 
+# create core interface to database
 engine = create_engine(sql_db_interface, echo=True)
 # class to produce instances of session
 Session = sessionmaker(bind=engine)
@@ -32,9 +32,8 @@ Session = sessionmaker(bind=engine)
 current_session = Session()
 
 
-
-default_category = current_session.query(Category).filter(Category.name == "None").first()
-
+default_category = current_session.query(
+    Category).filter(Category.name == "None").first()
 
 
 for x in range(len(categories)):
@@ -45,8 +44,8 @@ for x in range(len(categories)):
     item1.categories.append(default_category)
     item2 = Item(name=reptiles[x])
     item2.categories.append(default_category)
-    item3 = Item(name=jobs[x]) 
-    item3.categories.append(default_category)  
+    item3 = Item(name=jobs[x])
+    item3.categories.append(default_category)
     items_alchemy.append(item1)
     items_alchemy.append(item2)
     items_alchemy.append(item3)
@@ -58,6 +57,3 @@ current_session.add_all(users_alchemy)
 
 current_session.commit()
 current_session.close()
-
-
-
