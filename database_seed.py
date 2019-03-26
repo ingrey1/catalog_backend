@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database.database_setup import Category, Item, User
-from database.database_configuration import sql_db_interface
+from database_setup import Category, Item, User
+from database_configuration import sql_db_interface
 
 
 # seed data

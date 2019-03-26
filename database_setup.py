@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import datetime
-from database.database_configuration import sql_db_interface
+from database_configuration import sql_db_interface
 
 
 # create core interface to db - edit the value of sql_db_interface in the

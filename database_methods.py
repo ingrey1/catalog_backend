@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
-from database.database_setup import Category, Item, User, ItemCategoryAssociation
-from database.database_configuration import sql_db_interface
-from database.data_validation import valid_category_data, valid_item_data
+from database_setup import Category, Item, User, ItemCategoryAssociation
+from database_configuration import sql_db_interface
+from data_validation import valid_category_data, valid_item_data
 
 
 def serialize_record(instance):

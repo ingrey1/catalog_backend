@@ -1,10 +1,7 @@
 from authorization import get_token_info, valid_user
-from database import *
-from database.database_methods import *
-
+from database_methods import *
 from flask import Flask, jsonify
 from flask_cors import CORS
-import json
 
 app = Flask(__name__)
 CORS(app)
