@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '/home/ubuntu/.local/lib/python3.5/site-packages/')
 from sqlalchemy import (create_engine, Table, Column, Integer,
                         String, Boolean, Sequence, ForeignKey, DateTime)
 from sqlalchemy.orm import sessionmaker

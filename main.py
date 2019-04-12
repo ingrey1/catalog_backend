@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '/home/ubuntu/.local/lib/python3.5/site-packages/')
 from authorization import get_token_info, valid_user
 from database_methods import *
 from flask import Flask, jsonify
